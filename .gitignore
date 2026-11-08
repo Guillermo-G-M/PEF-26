@@ -18,3 +18,9 @@ mprofile_*.dat
 
 # Sphinx: se versiona el source (docs/*.rst, docs/conf.py), no el HTML generado
 p1-dev/docs/_build/
+
+# Parcial 3: entorno virtual, reportes de CI y sitio MkDocs generado
+p1-dev/.venv/
+p1-dev/reports/
+p1-dev/site/
+.benchmarks/

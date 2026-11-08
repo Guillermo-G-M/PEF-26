@@ -1,0 +1,29 @@
+# Dependencias de desarrollo y de los controles de CI.
+-r requirements.in
+
+# Pruebas, cobertura, rendimiento y memoria
+pytest>=7.0
+pytest-cov>=7.0
+pytest-benchmark>=5.0
+httpx>=0.28
+memory_profiler>=0.61
+scalene>=2.3
+
+# Calidad estatica
+ruff>=0.17
+pylint>=4.0
+radon>=6.0
+xenon>=0.9
+mypy>=1.10
+
+# Seguridad
+bandit[sarif]>=1.8
+pip-audit>=2.7
+
+# Documentacion
+sphinx>=9.0
+furo>=2025.12
+mkdocs-material>=9.5
+
+# Herramientas del proyecto
+uv>=0.9  # compila requirements*.txt con versiones fijadas
