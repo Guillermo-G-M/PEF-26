@@ -1,0 +1,4 @@
+# Configuracion de Gitleaks: reglas por defecto + excepciones documentadas.
+# Cada excepcion debe estar justificada en manual/seguridad.md.
+[extend]
+useDefault = true

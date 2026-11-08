@@ -1,0 +1,7 @@
+# Validacion de enlaces de la documentacion (Lychee).
+# 429 = limite de pedidos del sitio externo: no indica un enlace roto.
+accept = ["200..=299", "429"]
+max_retries = 3
+timeout = 20
+# Enlaces locales al servidor de la demo (no existen en el CI).
+exclude = ["^http://(127\.0\.0\.1|localhost)"]
