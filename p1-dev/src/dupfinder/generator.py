@@ -8,12 +8,14 @@ cargar archivos grandes completos en memoria.
 from __future__ import annotations
 
 import argparse
+import io
 import random
 import shutil
 import sys
 from pathlib import Path
 
-if hasattr(sys.stdout, "reconfigure"):
+# isinstance (no hasattr) para que mypy sepa que el stream admite reconfigure().
+if isinstance(sys.stdout, io.TextIOWrapper) and isinstance(sys.stderr, io.TextIOWrapper):
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 
@@ -66,7 +68,9 @@ def generate_dataset(
     if min_size < 1 or max_size < min_size:
         raise ValueError("tamaños inválidos: min_size >= 1 y max_size >= min_size")
 
-    rng = random.Random(seed)
+    # Falso positivo de Bandit (B311): el azar solo genera datos de prueba, no claves
+    # ni tokens; ademas se necesita una semilla reproducible. Ver docs/seguridad.
+    rng = random.Random(seed)  # nosec B311
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 

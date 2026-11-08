@@ -6,12 +6,14 @@ from __future__ import annotations
 
 import argparse
 import cProfile
+import io
 import multiprocessing
 import pstats
 import sys
 from pathlib import Path
 
-if hasattr(sys.stdout, "reconfigure"):
+# isinstance (no hasattr) para que mypy sepa que el stream admite reconfigure().
+if isinstance(sys.stdout, io.TextIOWrapper) and isinstance(sys.stderr, io.TextIOWrapper):
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 

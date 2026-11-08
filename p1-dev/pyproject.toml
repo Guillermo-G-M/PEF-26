@@ -21,6 +21,8 @@ target-version = "py39"
 select = ["E", "W", "F", "I", "UP", "RUF"]
 
 [tool.pytest.ini_options]
+# Parcial 3: los benchmarks (benchmarks/) corren aparte, en la etapa perf.
+testpaths = ["tests"]
 # Fase 9 (Parcial 2): cobertura por defecto en cada corrida de `pytest`, con un
 # piso que falla la corrida si se cae por debajo (referencia fijada tras medir:
 # 99% real al cierre de la Fase 9, con margen para no romper por variaciones
@@ -31,3 +33,18 @@ addopts = "--cov=dupfinder --cov-report=term-missing --cov-fail-under=95"
 # Guard estándar de Python, no ejecutado al importar el módulo bajo pytest —
 # no vale la pena un test solo para cubrir esta línea.
 exclude_lines = ["if __name__ == .__main__.:"]
+
+# --- Parcial 3: controles de CI (ver scripts/checks.py y manual/mantenimiento.md) ---
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+# Politica: todo error de mypy bloquea. Se exige anotar las funciones publicas
+# nuevas; las dependencias sin tipos (memory_profiler, scalene) no se chequean.
+check_untyped_defs = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+
+[tool.bandit]
+# Los tests usan assert y archivos temporales a proposito: no se analizan.
+exclude_dirs = ["tests", "benchmarks", ".venv"]
