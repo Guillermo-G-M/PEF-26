@@ -1,0 +1,236 @@
+# Pipeline de CI del Parcial 3.
+# Cada job llama a scripts/checks.py con la misma etapa que se usa en local
+# (ver p1-dev/manual/ci.md). Orden: primero lo rapido, al final lo costoso.
+#
+#   lint ─┬─ test ── perf ─┐
+#         └─ docs ─────────┼─ resultado ── publicar-docs (solo push a main)
+#   security ──────────────┘
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: p1-dev
+
+env:
+  PYTHON_VERSION: "3.12"
+  GITLEAKS_VERSION: "8.30.1"
+  LYCHEE_VERSION: "0.24.2"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  # --- Etapa 3: calidad estatica ----------------------------------------------
+  lint:
+    name: Calidad estatica
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: p1-dev/requirements-dev.txt
+      - name: Instalar dependencias fijadas
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pip install -e . --no-deps
+      - name: Ruff, Pylint, mypy, Radon, Xenon
+        run: python scripts/checks.py lint
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-lint
+          path: p1-dev/reports/
+
+  security:
+    name: Seguridad
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # subir SARIF a Code scanning
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # Gitleaks revisa todo el historial
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: p1-dev/requirements-dev.txt
+      - name: Instalar dependencias fijadas
+        run: python -m pip install -r requirements-dev.txt
+      - name: Instalar Gitleaks (version fijada, checksum verificado)
+        working-directory: ${{ runner.temp }}
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          file="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfLO "$base/$file"
+          curl -sSfL "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" | grep " $file\$" | sha256sum -c -
+          tar -xzf "$file" gitleaks
+          sudo install gitleaks /usr/local/bin/
+      - name: Bandit, pip-audit, Gitleaks
+        run: python scripts/checks.py security
+      - name: Subir SARIF de Bandit
+        if: always() && hashFiles('p1-dev/reports/bandit.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: p1-dev/reports/bandit.sarif
+          category: bandit
+      - name: Subir SARIF de Gitleaks
+        if: always() && hashFiles('p1-dev/reports/gitleaks.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: p1-dev/reports/gitleaks.sarif
+          category: gitleaks
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-seguridad
+          path: p1-dev/reports/
+
+  # --- Etapa 4: pruebas y cobertura -------------------------------------------
+  test:
+    name: Pruebas y cobertura
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: p1-dev/requirements-dev.txt
+      - name: Instalar dependencias fijadas
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pip install -e . --no-deps
+      - name: pytest + cobertura (umbral 95%)
+        run: python scripts/checks.py test
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-pruebas
+          path: p1-dev/reports/
+
+  # --- Etapa 5: documentacion -------------------------------------------------
+  docs:
+    name: Documentacion
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: p1-dev/requirements-dev.txt
+      - name: Instalar dependencias fijadas
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pip install -e . --no-deps
+      - name: Instalar Lychee (version fijada, checksum verificado)
+        working-directory: ${{ runner.temp }}
+        run: |
+          base="https://github.com/lycheeverse/lychee/releases/download/lychee-v${LYCHEE_VERSION}"
+          file="lychee-x86_64-unknown-linux-gnu.tar.gz"
+          curl -sSfLO "$base/$file"
+          echo "$(curl -sSfL "$base/$file.sha256" | cut -d' ' -f1)  $file" | sha256sum -c -
+          tar -xzf "$file"
+          sudo install "$(find . -name lychee -type f | head -1)" /usr/local/bin/
+      - name: MkDocs, Sphinx, Lychee
+        run: python scripts/checks.py docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # evita el limite de pedidos a github.com
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: p1-dev/site
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-docs
+          path: p1-dev/reports/
+
+  # --- Etapa 6: rendimiento y memoria -----------------------------------------
+  perf:
+    name: Rendimiento y memoria
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Checkout de main (linea base de los benchmarks)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: p1-dev/requirements-dev.txt
+      - name: Instalar dependencias fijadas
+        run: |
+          python -m pip install -r requirements-dev.txt
+          python -m pip install -e . --no-deps
+      - name: Benchmarks, memoria y profiling
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            python scripts/checks.py perf --base-src ../base/p1-dev/src
+          else
+            python scripts/checks.py perf
+          fi
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: reportes-rendimiento
+          path: |
+            p1-dev/reports/
+            !p1-dev/reports/perf-data/
+
+  # --- Etapa 7: resultado final -----------------------------------------------
+  # Unico check requerido por la regla de proteccion de main.
+  resultado:
+    name: Resultado
+    if: always()
+    needs: [lint, security, test, docs, perf]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Aprobado / Rechazado
+        working-directory: .
+        run: |
+          echo '${{ toJSON(needs) }}' | python3 -c "
+          import json, sys
+          needs = json.load(sys.stdin)
+          bad = {k: v['result'] for k, v in needs.items() if v['result'] != 'success'}
+          print('RECHAZADO:' if bad else 'APROBADO', bad or '')
+          sys.exit(1 if bad else 0)
+          "
+
+  publicar-docs:
+    name: Publicar documentacion
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: resultado
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5

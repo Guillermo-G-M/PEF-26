@@ -1,0 +1,20 @@
+# Dependabot: PRs semanales para actualizar dependencias de Python y las
+# GitHub Actions. Cada PR pasa por el mismo CI antes de poder integrarse.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /p1-dev
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      dependencias-python:
+        patterns: ["*"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      acciones:
+        patterns: ["*"]
