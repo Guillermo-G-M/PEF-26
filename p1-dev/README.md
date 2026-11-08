@@ -8,6 +8,11 @@ estructuras de datos, caching, concurrencia/paralelismo y perfilado.
 
 Diseño detallado en [`doc.md`](doc.md). Plan de trabajo en [`roadmap.md`](roadmap.md).
 
+**Parcial 3:** la documentación funcional, técnica y operativa está en
+[`manual/`](manual/index.md) (sitio MkDocs, publicado en GitHub Pages). Los controles
+de calidad y eficiencia del CI se corren en local con `python scripts/checks.py all`
+(ver [`manual/mantenimiento.md`](manual/mantenimiento.md)).
+
 ## Requisitos
 
 - Python 3.9 o superior (se usa `random.Random.randbytes` y `sys.stdout.reconfigure`).
