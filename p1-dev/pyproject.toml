@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dupfinder"
+version = "0.1.0"
+requires-python = ">=3.9"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+# E/W: pycodestyle. F: pyflakes. I: orden de imports. UP: modernizar anotaciones
+# de tipos (list/dict en vez de List/Dict, X | None en vez de Optional[X]).
+# RUF: reglas propias de ruff (ej. variables desempaquetadas sin usar).
+select = ["E", "W", "F", "I", "UP", "RUF"]
+
+[tool.pytest.ini_options]
+# Fase 9 (Parcial 2): cobertura por defecto en cada corrida de `pytest`, con un
+# piso que falla la corrida si se cae por debajo (referencia fijada tras medir:
+# 99% real al cierre de la Fase 9, con margen para no romper por variaciones
+# menores). `pytest -q` ya no necesita los flags --cov a mano.
+addopts = "--cov=dupfinder --cov-report=term-missing --cov-fail-under=95"
+
+[tool.coverage.report]
+# Guard estándar de Python, no ejecutado al importar el módulo bajo pytest —
+# no vale la pena un test solo para cubrir esta línea.
+exclude_lines = ["if __name__ == .__main__.:"]

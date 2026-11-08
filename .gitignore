@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Datasets generados y artefactos de medición (no versionados, se regeneran)
+p1-dev/data/
+p1-dev/benchmark_results.csv
+mprofile_*.dat
+
+# Cache de hashes de dupfinder (generado en runtime, sibling al directorio escaneado)
+.*.cache.json
+
+# Sphinx: se versiona el source (docs/*.rst, docs/conf.py), no el HTML generado
+p1-dev/docs/_build/

@@ -1,0 +1,25 @@
+pytest>=7.0
+memory_profiler>=0.61
+
+# Parcial 2 - analisis de calidad y cobertura (Fase 0)
+ruff>=0.17
+pylint>=4.0
+radon>=6.0
+pytest-cov>=7.0
+
+# Parcial 2 - documentacion generada (Fase 4)
+sphinx>=9.0
+furo>=2025.12
+
+# Parcial 2 - profiling CPU+memoria linea por linea (Fase 6)
+scalene>=2.3
+
+# Parcial 2 - servicio web sobre el detector (Fase 7)
+fastapi>=0.143
+uvicorn>=0.54
+httpx>=0.28
+
+# Parcial 2 - observabilidad tipo APM (Fase 8)
+opentelemetry-api>=1.45
+opentelemetry-sdk>=1.45
+opentelemetry-instrumentation-fastapi>=0.66b1
