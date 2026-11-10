@@ -9,7 +9,8 @@ estructuras de datos, caching, concurrencia/paralelismo y perfilado.
 Diseño detallado en [`doc.md`](doc.md). Plan de trabajo en [`roadmap.md`](roadmap.md).
 
 **Parcial 3:** la documentación funcional, técnica y operativa está en
-[`manual/`](manual/index.md) (sitio MkDocs, publicado en GitHub Pages). Los controles
+[`manual/`](manual/index.md) (sitio MkDocs publicado en
+[guillermo-g-m.github.io/PEF-26](https://guillermo-g-m.github.io/PEF-26/)). Los controles
 de calidad y eficiencia del CI se corren en local con `python scripts/checks.py all`
 (ver [`manual/mantenimiento.md`](manual/mantenimiento.md)).
 
