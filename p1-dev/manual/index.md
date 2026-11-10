@@ -20,6 +20,7 @@ rompe o una página no compila, el pipeline falla.
 | [Seguridad](seguridad.md) | Riesgos, dependencias, política de bloqueo y excepciones |
 | [Integración continua](ci.md) | Pipeline por etapas y matriz de controles |
 | [Mantenimiento](mantenimiento.md) | Cómo contribuir, correr los controles en local y resolver fallos |
+| [Acceso y colaboración](acceso.md) | Roles, permisos, regla de `main` y flujo de pull requests |
 
 La referencia del código (generada desde los docstrings con Sphinx) se construye
 con `python -m sphinx -b html docs docs/_build/html`.
@@ -28,8 +29,9 @@ con `python -m sphinx -b html docs docs/_build/html`.
 
 - **Un solo lugar:** el código, la documentación y el CI están en el mismo
   repositorio. Un cambio de código y su documentación entran en el mismo pull request.
-- **Control de acceso y colaboración:** los permisos del repositorio definen quién
-  edita; cada cambio pasa por revisión e historial de Git.
+- **Control de acceso y colaboración:** el repositorio es público para leer, pero
+  solo los colaboradores autorizados editan; cada cambio pasa por pull request,
+  revisión e historial de Git (ver [Acceso y colaboración](acceso.md)).
 - **Siempre actualizada:** el CI compila el sitio en modo estricto y valida los
   enlaces; al integrar en `main` se publica automáticamente.
 - **Markdown simple:** no requiere herramientas propietarias (a diferencia de

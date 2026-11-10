@@ -85,13 +85,15 @@ jobs:
       - name: Bandit, pip-audit, Gitleaks
         run: python scripts/checks.py security
       - name: Subir SARIF de Bandit
-        if: always() && hashFiles('p1-dev/reports/bandit.sarif') != ''
+        # En PR desde un fork el token es de solo lectura: el SARIF queda como artefacto.
+        if: always() && hashFiles('p1-dev/reports/bandit.sarif') != '' && github.event.pull_request.head.repo.fork != true
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: p1-dev/reports/bandit.sarif
           category: bandit
       - name: Subir SARIF de Gitleaks
-        if: always() && hashFiles('p1-dev/reports/gitleaks.sarif') != ''
+        # En PR desde un fork el token es de solo lectura: el SARIF queda como artefacto.
+        if: always() && hashFiles('p1-dev/reports/gitleaks.sarif') != '' && github.event.pull_request.head.repo.fork != true
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: p1-dev/reports/gitleaks.sarif

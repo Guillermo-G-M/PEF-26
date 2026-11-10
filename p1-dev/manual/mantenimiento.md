@@ -2,6 +2,8 @@
 
 ## Cómo contribuir
 
+Roles, permisos y flujo para colaboradores externos: [Acceso y colaboración](acceso.md).
+
 1. Crear una rama desde `main`: `git switch -c feature/descripcion-corta`.
 2. Hacer el cambio con sus pruebas y, si cambia el comportamiento, su documentación
    en `manual/`.
