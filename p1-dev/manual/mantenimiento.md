@@ -82,7 +82,11 @@ jobs* (útil solo para fallos externos, como un sitio caído en Lychee).
 
 ## Actualizar dependencias
 
-Dependabot abre un PR semanal. Si se actualiza a mano:
+Dependabot abre un PR semanal. Resuelve las versiones con el Python indicado en
+`.python-version` (3.12, el mismo del CI); sin ese archivo usaría la versión mínima de
+`requires-python` y no encontraría versiones que solo existen para 3.11 o más (como Sphinx 9).
+
+Si se actualiza a mano:
 
 ```bash
 # editar requirements.in / requirements-dev.in
