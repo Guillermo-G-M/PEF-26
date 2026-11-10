@@ -16,7 +16,7 @@ de calidad y eficiencia del CI se corren en local con `python scripts/checks.py 
 
 ## Requisitos
 
-- Python 3.9 o superior (se usa `random.Random.randbytes` y `sys.stdout.reconfigure`).
+- Python 3.12 o superior (versión del CI y de las dependencias fijadas en `requirements*.txt`).
 - Dependencias de desarrollo: `pip install -r requirements.txt` (`pytest`, `memory_profiler`).
 - Paquete instalado en modo editable: `pip install -e .` — necesario para el modo
   `paralelo` (`ProcessPoolExecutor` con `multiprocessing` en modo `spawn`, el único

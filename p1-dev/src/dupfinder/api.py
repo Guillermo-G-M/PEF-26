@@ -52,7 +52,10 @@ def _inside_root(raw: str, field: str) -> Path:
     """
     root = _scan_root()
     full = os.path.realpath(os.path.join(root, raw))
-    if full != root and not full.startswith(root + os.sep):
+    if full == root:
+        return Path(root)
+    # Comparación con separador final: evita que "/datos2" pase como "/datos".
+    if not full.startswith(root + os.sep):
         raise HTTPException(status_code=403, detail=f"{field} fuera del directorio permitido")
     return Path(full)
 

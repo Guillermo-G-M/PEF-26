@@ -4,7 +4,7 @@ Todos los comandos se ejecutan desde `p1-dev/`.
 
 ## Requisitos
 
-- Python 3.12 (el CI usa 3.12; la sintaxis del proyecto admite 3.9+).
+- Python 3.12 o superior (es la versión del CI y la de las dependencias fijadas).
 - Git.
 - Opcional, para correr en local los controles de secretos y enlaces:
   [Gitleaks](https://github.com/gitleaks/gitleaks) y
