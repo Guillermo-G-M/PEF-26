@@ -3,6 +3,10 @@ site_description: Detector de archivos duplicados - documentaci√≥n funcional, t√
 docs_dir: manual
 site_dir: site
 strict: true
+site_url: https://guillermo-g-m.github.io/PEF-26/
+repo_url: https://github.com/Guillermo-G-M/PEF-26
+repo_name: Guillermo-G-M/PEF-26
+edit_uri: edit/main/p1-dev/manual/
 
 theme:
   name: material
@@ -10,6 +14,7 @@ theme:
   features:
     - navigation.sections
     - navigation.top
+    - content.action.edit
     - content.code.copy
     - search.highlight
   palette:
