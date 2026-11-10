@@ -30,11 +30,11 @@ Entrada (`ScanRequest`; solo `path` es obligatorio):
 
 | Campo | Tipo | Default | Validación |
 |---|---|---|---|
-| `path` | string | — | Debe ser un directorio existente |
+| `path` | string | — | Directorio existente dentro de `DUPFINDER_SCAN_ROOT` (relativo a esa raíz o absoluto) |
 | `workers` | int | cantidad de CPUs | Mayor o igual a 1 |
 | `threshold` | int | 2097152 | Bytes |
 | `batch_size` | int o null | 5000 | `null` o ≤ 0 = un solo lote |
-| `cache_file` | string o null | junto al directorio | Ruta del cache |
+| `cache_file` | string o null | junto al directorio | Ruta del cache, dentro de `DUPFINDER_SCAN_ROOT` |
 
 Salida (`ScanResponse`):
 
@@ -57,6 +57,7 @@ Errores:
 | Código | Causa |
 |---|---|
 | 400 | `path` no es un directorio |
+| 403 | `path` o `cache_file` fuera de `DUPFINDER_SCAN_ROOT` (incluye `..` y enlaces simbólicos) |
 | 422 | Cuerpo inválido (falta `path`, `workers` < 1, tipos incorrectos) |
 
 Ejemplo:

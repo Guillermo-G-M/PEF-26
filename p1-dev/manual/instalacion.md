@@ -47,7 +47,13 @@ importar `dupfinder` por nombre.
 
 ## Configuración
 
-No hay variables de entorno obligatorias. Parámetros principales:
+Variable de entorno del servicio REST:
+
+| Variable | Default | Uso |
+|---|---|---|
+| `DUPFINDER_SCAN_ROOT` | directorio de trabajo del proceso | Única carpeta (con sus subcarpetas) que `POST /scan` puede escanear |
+
+Parámetros principales:
 
 | Parámetro | Default | Uso |
 |---|---|---|

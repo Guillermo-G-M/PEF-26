@@ -28,11 +28,11 @@ El invariante principal es que la cantidad de redundantes es exactamente
 | `test_final.py` | 8 | Ruteo exacto por umbral, cache caliente no rutea nada, casos borde |
 | `test_batching.py` | 5 | Con y sin batching el resultado es el mismo en los tres modos con pool |
 | `test_cli.py` | 5 | Defaults, modo inválido, despacho, path inexistente, `--profile` |
-| `test_api.py` | 5 | `/health`, `/scan` cumple el invariante, reutiliza cache, 400 y 422 |
+| `test_api.py` | 9 | `/health`, `/scan` cumple el invariante, reutiliza cache, ruta relativa a la raíz, 400, 422 y 403 (fuera de la raíz, `..`, `cache_file` externo) |
 
 ## Resultados
 
-Último resultado: **68 pruebas aprobadas, cobertura 100%** (umbral bloqueante: 95%).
+Último resultado: **72 pruebas aprobadas, cobertura 100%** (umbral bloqueante: 95%).
 En cada ejecución del CI se publican como artefactos:
 
 - `junit.xml`: resultado por prueba.

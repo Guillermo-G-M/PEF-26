@@ -11,6 +11,7 @@ reimplementa nada del algoritmo**: envuelve tal cual
 from __future__ import annotations
 
 import multiprocessing
+import os
 import time
 from pathlib import Path
 
@@ -30,18 +31,45 @@ app = FastAPI(
 )
 FastAPIInstrumentor.instrument_app(app)
 
+#: Variable de entorno con el directorio raíz que el servicio puede escanear.
+SCAN_ROOT_ENV = "DUPFINDER_SCAN_ROOT"
+
+
+def _scan_root() -> str:
+    """Directorio raíz permitido: `DUPFINDER_SCAN_ROOT` o, si no está, el
+    directorio de trabajo del proceso. Se lee en cada request para poder
+    cambiarlo sin reiniciar (y en las pruebas)."""
+    return os.path.realpath(os.environ.get(SCAN_ROOT_ENV) or os.getcwd())
+
+
+def _inside_root(raw: str, field: str) -> Path:
+    """Resuelve `raw` (relativa a la raíz o absoluta) y rechaza con 403 lo que
+    quede fuera de la raíz, incluidos `..` y enlaces simbólicos.
+
+    Corrige el hallazgo de CodeQL `py/path-injection`: sin esta validación,
+    un cliente HTTP podía recorrer cualquier directorio del servidor y escribir
+    el archivo de cache en cualquier ruta.
+    """
+    root = _scan_root()
+    full = os.path.realpath(os.path.join(root, raw))
+    if full != root and not full.startswith(root + os.sep):
+        raise HTTPException(status_code=403, detail=f"{field} fuera del directorio permitido")
+    return Path(full)
+
 
 class ScanRequest(BaseModel):
     """Parámetros de un escaneo, con los mismos defaults que la CLI (`cli.py`)."""
 
-    path: str = Field(..., description="Directorio a escanear")
+    path: str = Field(..., description="Directorio a escanear, dentro de DUPFINDER_SCAN_ROOT")
     workers: int = Field(default=multiprocessing.cpu_count(), ge=1)
     threshold: int = Field(
         default=DEFAULT_THRESHOLD_BYTES,
         description="Umbral de tamaño (bytes) para el ruteo threads/procesos",
     )
     batch_size: int | None = Field(default=DEFAULT_BATCH_SIZE)
-    cache_file: str | None = Field(default=None, description="Ruta del archivo de cache")
+    cache_file: str | None = Field(
+        default=None, description="Ruta del cache, dentro de DUPFINDER_SCAN_ROOT"
+    )
 
 
 class ScanResponse(BaseModel):
@@ -80,12 +108,16 @@ def scan(request: ScanRequest) -> ScanResponse:
         span.set_attribute("dupfinder.workers", request.workers)
         span.set_attribute("dupfinder.threshold", request.threshold)
 
-        path = Path(request.path)
+        path = _inside_root(request.path, "path")
         if not path.is_dir():
             span.set_attribute("dupfinder.error", "not_a_directory")
             raise HTTPException(status_code=400, detail=f"{request.path} no es un directorio")
 
-        cache_path = Path(request.cache_file) if request.cache_file else default_cache_path(path)
+        cache_path = (
+            _inside_root(request.cache_file, "cache_file")
+            if request.cache_file
+            else default_cache_path(path)
+        )
         cache = load_cache(cache_path)
 
         start = time.perf_counter()

@@ -32,7 +32,7 @@ subir una versión en `requirements-dev.in` y recompilar.
 
 | Riesgo | Impacto | Medida |
 |---|---|---|
-| `/scan` acepta cualquier ruta del servidor | Un cliente puede listar y leer metadatos de cualquier directorio accesible | El servicio se levanta solo en `127.0.0.1` (uso local); para exponerlo habría que limitar `path` a un directorio raíz y agregar autenticación |
+| Rutas arbitrarias en `/scan` (CodeQL `py/path-injection`, severidad alta) | Un cliente podía recorrer cualquier directorio del servidor y escribir el cache en cualquier ruta | **Corregido:** `path` y `cache_file` se resuelven con `realpath` y se rechazan con 403 si quedan fuera de `DUPFINDER_SCAN_ROOT`. Pruebas en `tests/test_api.py`. Además, el servicio se levanta solo en `127.0.0.1`; para exponerlo habría que agregar autenticación |
 | `/scan` sobre un árbol enorme | Consumo alto de CPU y disco (denegación de servicio) | Batching acota la memoria; para exponerlo, limitar workers y tiempo por request |
 | Cache JSON modificado a mano | Un hash falso haría reportar duplicados inexistentes | El cache se guarda junto al directorio del usuario; es un riesgo local y aceptado |
 | Dependencias de terceros | Vulnerabilidades heredadas | pip-audit en cada ejecución + Dependabot + versiones fijadas |

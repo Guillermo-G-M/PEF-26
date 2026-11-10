@@ -3,12 +3,20 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+import pytest
 from fastapi.testclient import TestClient
 
-from dupfinder.api import app
+from dupfinder.api import SCAN_ROOT_ENV, app
 from dupfinder.generator import generate_dataset
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def scan_root(tmp_path, monkeypatch):
+    """Cada prueba solo puede escanear su propio `tmp_path`."""
+    monkeypatch.setenv(SCAN_ROOT_ENV, str(tmp_path))
+    return tmp_path
 
 
 def _as_sets(groups):
@@ -61,3 +69,36 @@ def test_scan_rejects_invalid_workers():
     response = client.post("/scan", json={"path": ".", "workers": 0})
 
     assert response.status_code == 422
+
+
+def test_scan_accepts_relative_path_inside_root(tmp_path):
+    generate_dataset(
+        tmp_path / "sub", count=10, dup_ratio=0.2, min_size=200, max_size=2_000, seed=33
+    )
+
+    response = client.post("/scan", json={"path": "sub", "workers": 1})
+
+    assert response.status_code == 200
+    assert response.json()["files_scanned"] == 10
+
+
+def test_scan_rejects_path_outside_root(tmp_path):
+    response = client.post("/scan", json={"path": str(tmp_path.parent)})
+
+    assert response.status_code == 403
+
+
+def test_scan_rejects_traversal(tmp_path):
+    (tmp_path / "sub").mkdir()
+
+    response = client.post("/scan", json={"path": "sub/../.."})
+
+    assert response.status_code == 403
+
+
+def test_scan_rejects_cache_file_outside_root(tmp_path):
+    response = client.post(
+        "/scan", json={"path": str(tmp_path), "cache_file": str(tmp_path.parent / "x.json")}
+    )
+
+    assert response.status_code == 403
