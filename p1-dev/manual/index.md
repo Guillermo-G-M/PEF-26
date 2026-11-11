@@ -4,6 +4,8 @@ Detector de archivos duplicados en Python, desarrollado en Programación Eficien
 (Parcial 1: algoritmo y optimizaciones; Parcial 2: calidad, servicio web y
 observabilidad; Parcial 3: documentación externa e integración continua).
 
+Sitio publicado: [guillermo-g-m.github.io/PEF-26](https://guillermo-g-m.github.io/PEF-26/).
+
 Esta documentación vive en el repositorio (`p1-dev/manual/`), se publica con
 MkDocs en GitHub Pages y se construye en cada ejecución del CI: si un enlace se
 rompe o una página no compila, el pipeline falla.
