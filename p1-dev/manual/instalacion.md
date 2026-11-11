@@ -11,6 +11,14 @@ Todos los comandos se ejecutan desde `p1-dev/`.
   [Lychee](https://github.com/lycheeverse/lychee). En Windows:
   `winget install Gitleaks.Gitleaks` y `winget install lycheeverse.lychee`.
 
+## Obtener el código
+
+```bash
+git clone https://github.com/Guillermo-G-M/PEF-26.git
+cd PEF-26/p1-dev
+```
+
+
 ## Instalación reproducible
 
 Windows (PowerShell):
