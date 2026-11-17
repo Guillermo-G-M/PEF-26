@@ -10,7 +10,7 @@ memory_profiler>=0.61
 scalene>=2.3
 
 # Calidad estatica
-ruff>=0.17
+ruff>=0.17.5
 pylint>=4.0
 radon>=6.0
 xenon>=0.9
@@ -26,4 +26,4 @@ furo>=2025.12
 mkdocs-material>=9.5
 
 # Herramientas del proyecto
-uv>=0.9  # compila requirements*.txt con versiones fijadas
+uv>=0.13.8  # compila requirements*.txt con versiones fijadas
